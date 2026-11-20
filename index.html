@@ -15,9 +15,26 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l2.5-7 5 14 2.5-7h4"/></symbol>
+    <symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9Z"/><path d="m9 14 2 2 4-4"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 3M17.9 15A7 7 0 0 1 6 18l-2-3"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5V3h6v1.5M9 10h6M9 14h6M9 18h4"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12h3l2-5 4 10 3-12 3 7h5"/></symbol>
+    <symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M15 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8" cy="7" r="4"/><path d="M19 8v6M16 11h6"/></symbol>
+    <symbol id="i-android" viewBox="0 0 24 24"><path d="M7 8h10a2 2 0 0 1 2 2v7H5v-7a2 2 0 0 1 2-2ZM8 8 6.5 5.5M16 8l1.5-2.5M8 17v3M16 17v3M5 11H3v5M19 11h2v5"/><circle cx="9" cy="11" r=".7" fill="currentColor"/><circle cx="15" cy="11" r=".7" fill="currentColor"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 28 28"><path d="M15.7 2.1c-.9.1-2 .6-2.6 1.3-.6.7-1.1 1.8-.9 2.8 1 .1 2.1-.5 2.7-1.2.6-.7 1-1.8.8-2.9Zm4 11.1c0-3 2.4-4.4 2.5-4.5-1.4-2.1-3.6-2.3-4.4-2.3-1.9-.2-3.7 1.1-4.7 1.1-1 0-2.6-1.1-4.3-1-2.2 0-4.3 1.3-5.5 3.3-2.4 4.1-.6 10.2 1.7 13.6 1.1 1.7 2.5 3.5 4.3 3.4 1.7-.1 2.4-1.1 4.5-1.1 2.1 0 2.7 1.1 4.5 1.1 1.9 0 3.1-1.7 4.2-3.4 1.3-1.9 1.8-3.7 1.8-3.8-.1 0-4.6-1.8-4.6-6.4Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3M15 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></symbol>
+  </svg>
   <section id="loginView" class="loginwrap">
     <form id="loginForm" class="login" autocomplete="on">
-      <div class="brand login-brand"><span class="mark" aria-hidden="true">♥</span>CardioTrack</div>
+      <div class="brand login-brand"><span class="mark" aria-hidden="true"><svg><use href="#i-heart"/></svg></span>CardioTrack</div>
       <div class="eyebrow">Acceso clínico</div>
       <h1>Bienvenida</h1>
       <p class="sub">Ingresa al prototipo académico conectado a la nube.</p>
@@ -29,7 +46,7 @@
         <input id="password" type="password" autocomplete="current-password" required>
       </label>
       <p id="loginError" class="form-error hidden" role="alert"></p>
-      <button class="btn login-button" id="loginBtn" type="submit">Iniciar sesión</button>
+      <button class="btn login-button" id="loginBtn" type="submit"><svg class="icon"><use href="#i-activity"/></svg> Iniciar sesión</button>
 
       <div class="demo-note">
         <strong>Acceso de demostración</strong>
@@ -41,14 +58,14 @@
   <div id="app" class="hidden">
     <header class="top">
       <div class="shell topin">
-        <div class="brand"><span class="mark" aria-hidden="true">♥</span>CardioTrack</div>
+        <div class="brand"><span class="mark" aria-hidden="true"><svg><use href="#i-heart"/></svg></span>CardioTrack</div>
         <nav class="nav" aria-label="Navegación principal">
-          <button type="button" data-view="dashboard" class="active">Tablero</button>
-          <button type="button" data-view="patients">Pacientes</button>
+          <button type="button" data-view="dashboard" class="active"><svg class="icon"><use href="#i-dashboard"/></svg> Tablero</button>
+          <button type="button" data-view="patients"><svg class="icon"><use href="#i-users"/></svg> Pacientes</button>
         </nav>
         <div class="user">
           <span id="userName">Usuario clínico</span>
-          <button type="button" class="logout" id="logout">Salir</button>
+          <button type="button" class="logout" id="logout">Salir <svg class="icon"><use href="#i-logout"/></svg></button>
         </div>
       </div>
     </header>
@@ -56,7 +73,7 @@
     <main>
       <section id="dashboard" class="view active">
         <div class="shell main">
-          <div class="statusline"><span class="pulse"></span>Datos sincronizados</div>
+          <div class="statusline"><span class="pulse"></span><svg class="icon"><use href="#i-cloud"/></svg> Datos sincronizados</div>
           <div class="hero">
             <div>
               <div class="eyebrow">Resumen de monitoreo</div>
@@ -64,8 +81,12 @@
               <p class="sub">Registros ordenados por prioridad de revisión.</p>
             </div>
             <div class="actions">
-              <button type="button" class="btn light install">Instalar en celular</button>
-              <button type="button" class="btn newrecord">Nuevo registro</button>
+              <div class="install-actions" aria-label="Opciones de instalación">
+                <button type="button" class="btn light install-android"><svg class="icon"><use href="#i-android"/></svg> Android</button>
+                <button type="button" class="btn light install-ios"><svg class="icon"><use href="#i-apple"/></svg> iOS</button>
+              </div>
+              <button type="button" class="btn newpatient"><svg class="icon"><use href="#i-user-plus"/></svg> Registrar paciente</button>
+              <button type="button" class="btn newrecord"><svg class="icon"><use href="#i-plus"/></svg> Nuevo registro</button>
             </div>
           </div>
 
@@ -79,7 +100,7 @@
                   <h2>Registros recientes</h2>
                   <span class="note">Datos sintéticos para demostración</span>
                 </div>
-                <button type="button" id="refresh" class="icon-button" aria-label="Actualizar datos" title="Actualizar datos">↻</button>
+                <button type="button" id="refresh" class="icon-button" aria-label="Actualizar datos" title="Actualizar datos"><svg class="icon"><use href="#i-refresh"/></svg></button>
               </div>
               <label class="sr-only" for="search">Buscar paciente o estado</label>
               <input class="search" id="search" placeholder="Buscar paciente o estado">
@@ -98,9 +119,10 @@
 
       <section id="patients" class="view">
         <div class="shell main">
-          <div class="eyebrow">Datos seudonimizados</div>
-          <h1>Pacientes</h1>
-          <p class="sub">Se utilizan códigos; el prototipo no almacena nombres.</p>
+          <div class="hero">
+            <div><div class="eyebrow">Datos seudonimizados</div><h1>Pacientes</h1><p class="sub">Se utilizan códigos; el prototipo no almacena nombres.</p></div>
+            <button type="button" class="btn newpatient"><svg class="icon"><use href="#i-user-plus"/></svg> Registrar paciente</button>
+          </div>
           <div id="patientCards" class="patients"></div>
           <div class="footer">La información mostrada es sintética y se utiliza únicamente con fines académicos.</div>
         </div>
@@ -115,9 +137,9 @@
     </main>
 
     <nav class="bottomnav" aria-label="Navegación móvil">
-      <button type="button" data-view="dashboard" class="active"><span aria-hidden="true">⌂</span><small>Tablero</small></button>
-      <button type="button" data-view="patients"><span aria-hidden="true">♙</span><small>Pacientes</small></button>
-      <button type="button" class="newrecord"><span aria-hidden="true">＋</span><small>Nuevo</small></button>
+      <button type="button" data-view="dashboard" class="active"><svg class="nav-icon"><use href="#i-dashboard"/></svg><small>Tablero</small></button>
+      <button type="button" data-view="patients"><svg class="nav-icon"><use href="#i-users"/></svg><small>Pacientes</small></button>
+      <button type="button" class="newrecord"><svg class="nav-icon"><use href="#i-plus"/></svg><small>Nuevo</small></button>
     </nav>
   </div>
 
@@ -142,8 +164,43 @@
       </label>
       <div class="info">El sistema generará una señal sintética, la procesará y guardará el resultado en Supabase.</div>
       <p id="newError" class="form-error hidden" role="alert"></p>
-      <button class="btn form-submit" id="processBtn" type="submit">Procesar y guardar</button>
+      <button class="btn form-submit" id="processBtn" type="submit"><svg class="icon"><use href="#i-wave"/></svg> Procesar y guardar</button>
     </form>
+  </div>
+
+  <div id="patientModal" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="patientModalTitle">
+    <form class="modal" id="patientForm">
+      <div class="modaltop">
+        <div><div class="eyebrow">Expediente seudonimizado</div><h2 id="patientModalTitle">Registrar paciente</h2></div>
+        <button type="button" class="close" id="closePatient" aria-label="Cerrar">×</button>
+      </div>
+      <label class="field" for="patientCode">Código del paciente
+        <input id="patientCode" type="text" pattern="CT-[0-9]{3}" maxlength="6" placeholder="CT-004" required>
+      </label>
+      <label class="field" for="patientAge">Edad
+        <input id="patientAge" type="number" min="0" max="120" placeholder="Ej. 45" required>
+      </label>
+      <label class="field" for="patientSex">Sexo registrado
+        <select id="patientSex" required>
+          <option value="F">Femenino</option><option value="M">Masculino</option>
+          <option value="X">Otro</option><option value="ND">No especificado</option>
+        </select>
+      </label>
+      <div class="info"><svg class="icon"><use href="#i-users"/></svg> Por privacidad, CardioTrack almacena un código y no el nombre del paciente.</div>
+      <p id="patientError" class="form-error hidden" role="alert"></p>
+      <button class="btn form-submit" id="patientSubmit" type="submit"><svg class="icon"><use href="#i-user-plus"/></svg> Guardar paciente</button>
+    </form>
+  </div>
+
+  <div id="installModal" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+    <div class="modal install-guide">
+      <div class="modaltop">
+        <div><div class="eyebrow">Aplicación móvil</div><h2 id="installTitle">Instalar CardioTrack</h2></div>
+        <button type="button" class="close" id="closeInstall" aria-label="Cerrar">×</button>
+      </div>
+      <div id="installContent"></div>
+      <button type="button" class="btn" id="acceptInstall">Entendido</button>
+    </div>
   </div>
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>

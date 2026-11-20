@@ -9,11 +9,12 @@ Prototipo académico instalable (PWA) para monitoreo cardiaco remoto. La interfa
 - Inicio de sesión mediante Supabase Auth.
 - Tablero clínico con métricas y alertas pendientes.
 - Consulta de pacientes seudonimizados.
+- Registro de nuevos pacientes seudonimizados directamente en Supabase.
 - Creación de señales ECG sintéticas para demostración.
 - Persistencia compartida de registros en PostgreSQL/Supabase.
 - Visualización de señal, frecuencia, calidad y complejos detectados.
 - Registro de revisión de alertas y bitácora de auditoría.
-- Diseño responsivo e instalación como aplicación web progresiva.
+- Diseño responsivo e instalación guiada para Android y iOS como aplicación web progresiva.
 
 ## Arquitectura
 

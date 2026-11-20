@@ -27,8 +27,15 @@ const els = {
   patientCards: $("#patientCards"), modal: $("#modal"), close: $("#close"), newForm: $("#newForm"),
   newPatient: $("#newPatient"), newHr: $("#newHr"), newNoise: $("#newNoise"),
   newError: $("#newError"), processBtn: $("#processBtn"), recordContent: $("#recordContent"),
-  toast: $("#toast"), refresh: $("#refresh"), back: $("#back")
+  toast: $("#toast"), refresh: $("#refresh"), back: $("#back"),
+  patientModal: $("#patientModal"), patientForm: $("#patientForm"), closePatient: $("#closePatient"),
+  patientCode: $("#patientCode"), patientAge: $("#patientAge"), patientSex: $("#patientSex"),
+  patientError: $("#patientError"), patientSubmit: $("#patientSubmit"),
+  installModal: $("#installModal"), installTitle: $("#installTitle"), installContent: $("#installContent"),
+  closeInstall: $("#closeInstall"), acceptInstall: $("#acceptInstall")
 };
+
+const icon = name => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>'"]/g, char => ({
@@ -40,6 +47,8 @@ function errorMessage(error) {
   const message = String(error?.message || error || "Error desconocido");
   if (/invalid login credentials/i.test(message)) return "El correo o la contraseña no son correctos.";
   if (/email not confirmed/i.test(message)) return "La cuenta todavía no ha sido confirmada en Supabase.";
+  if (/duplicate key|patients_patient_code_key/i.test(message)) return "Ese código de paciente ya está registrado.";
+  if (/patients_patient_code_check/i.test(message)) return "El código debe tener el formato CT-000.";
   if (/failed to fetch|network/i.test(message)) return "No fue posible conectarse con Supabase. Revisa tu conexión a internet.";
   return message;
 }
@@ -139,16 +148,16 @@ function renderMetrics() {
     : 0;
 
   els.alertOverview.innerHTML = `
-    <div class="alert-icon" aria-hidden="true">!</div>
+    <div class="alert-icon" aria-hidden="true">${icon("alert")}</div>
     <div><strong>${pending} ${pending === 1 ? "alerta pendiente" : "alertas pendientes"}</strong>
       <p>Prioriza los registros marcados y documenta su revisión.</p>
       <div class="alert-summary"><span>${reviewed} revisadas</span><span>${pending} pendientes</span></div>
     </div>`;
   els.stats.innerHTML = `
-    <article class="stat"><div class="label">Registros</div><div class="value">${state.records.length}</div></article>
-    <article class="stat red"><div class="label">Requieren revisión</div><div class="value">${pending}</div></article>
-    <article class="stat amber"><div class="label">Calidad insuficiente</div><div class="value">${quality}</div></article>
-    <article class="stat"><div class="label">FC promedio</div><div class="value">${average.toFixed(1)} <small>lpm</small></div></article>`;
+    <article class="stat"><div class="stat-icon">${icon("clipboard")}</div><div class="label">Registros</div><div class="value">${state.records.length}</div></article>
+    <article class="stat red"><div class="stat-icon">${icon("alert")}</div><div class="label">Requieren revisión</div><div class="value">${pending}</div></article>
+    <article class="stat amber"><div class="stat-icon">${icon("activity")}</div><div class="label">Calidad insuficiente</div><div class="value">${quality}</div></article>
+    <article class="stat"><div class="stat-icon">${icon("heart")}</div><div class="label">FC promedio</div><div class="value">${average.toFixed(1)} <small>lpm</small></div></article>`;
 }
 
 function renderRecords() {
@@ -179,7 +188,7 @@ function renderPatients() {
     const pending = records.filter(record => record.status === "review" && !record.reviewed).length;
     const sex = ({ F: "Femenino", M: "Masculino", X: "Otro", ND: "No especificado" })[patient.sex] || "No especificado";
     return `<article class="pcard">
-      <div class="code">${escapeHtml(patient.patient_code)}</div>
+      <div class="patient-title"><span class="patient-avatar">${icon("users")}</span><div class="code">${escapeHtml(patient.patient_code)}</div></div>
       <div class="meta">${patient.age ?? "—"} años · ${sex}</div>
       <div class="count">${records.length} registros · ${pending} pendientes</div>
     </article>`;
@@ -196,6 +205,84 @@ function openModal() {
 
 function closeModal() {
   els.modal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function nextPatientCode() {
+  const highest = state.patients.reduce((max, patient) => {
+    const number = Number(String(patient.patient_code).split("-")[1]);
+    return Number.isFinite(number) ? Math.max(max, number) : max;
+  }, 0);
+  return `CT-${String(highest + 1).padStart(3, "0")}`;
+}
+
+function openPatientModal() {
+  setError(els.patientError);
+  els.patientCode.value = nextPatientCode();
+  els.patientAge.value = "";
+  els.patientSex.value = "ND";
+  els.patientModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => els.patientAge.focus(), 50);
+}
+
+function closePatientModal() {
+  els.patientModal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+async function createPatient(event) {
+  event.preventDefault();
+  setError(els.patientError);
+  const code = els.patientCode.value.trim().toUpperCase();
+  if (!/^CT-\d{3}$/.test(code)) return setError(els.patientError, "El código debe tener el formato CT-000.");
+  els.patientSubmit.disabled = true;
+  els.patientSubmit.innerHTML = `${icon("cloud")} Guardando…`;
+  try {
+    const { error } = await client.from("patients").insert({
+      patient_code: code,
+      age: Number(els.patientAge.value),
+      sex: els.patientSex.value,
+      created_by: state.session.user.id
+    });
+    if (error) throw error;
+    closePatientModal();
+    await loadData({ quiet: true });
+    showView("patients");
+    notify(`Paciente ${code} registrado correctamente en Supabase.`);
+  } catch (error) {
+    setError(els.patientError, errorMessage(error));
+  } finally {
+    els.patientSubmit.disabled = false;
+    els.patientSubmit.innerHTML = `${icon("user-plus")} Guardar paciente`;
+  }
+}
+
+function isStandalone() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function showInstallGuide(platform) {
+  if (isStandalone()) return notify("CardioTrack ya está instalado en este dispositivo.");
+  const ios = platform === "ios";
+  els.installTitle.innerHTML = `${icon(ios ? "apple" : "android")} Instalar en ${ios ? "iPhone o iPad" : "Android"}`;
+  els.installContent.innerHTML = ios
+    ? `<div class="install-guide">
+        <div class="install-step"><span class="step-number">1</span><span>Abre CardioTrack en <strong>Safari</strong>.</span></div>
+        <div class="install-step"><span class="step-number">2</span><span>Pulsa el botón <strong>Compartir</strong> de Safari.</span></div>
+        <div class="install-step"><span class="step-number">3</span><span>Selecciona <strong>Agregar a pantalla de inicio</strong> y después <strong>Agregar</strong>.</span></div>
+      </div>`
+    : `<div class="install-guide">
+        <div class="install-step"><span class="step-number">1</span><span>Abre CardioTrack en <strong>Chrome</strong>.</span></div>
+        <div class="install-step"><span class="step-number">2</span><span>Pulsa el menú <strong>⋮</strong> del navegador.</span></div>
+        <div class="install-step"><span class="step-number">3</span><span>Selecciona <strong>Instalar aplicación</strong> o <strong>Agregar a pantalla principal</strong>.</span></div>
+      </div>`;
+  els.installModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeInstallGuide() {
+  els.installModal.classList.add("hidden");
   document.body.style.overflow = "";
 }
 
@@ -229,7 +316,7 @@ async function createRecord(event) {
     setError(els.newError, errorMessage(error));
   } finally {
     els.processBtn.disabled = false;
-    els.processBtn.textContent = "Procesar y guardar";
+    els.processBtn.innerHTML = `${icon("wave")} Procesar y guardar`;
   }
 }
 
@@ -253,16 +340,16 @@ function openRecord(id) {
       <span class="pill ${status.className}">${escapeHtml(status.label)}</span>
     </div>
     <div class="recordgrid">
-      <section class="chartbox"><div class="charttop"><div><h2>Señal electrocardiográfica</h2><span class="note">Vista sintética para demostración</span></div><span>250 Hz · 10 s</span></div>
+      <section class="chartbox"><div class="charttop"><div><h2>${icon("wave")} Señal electrocardiográfica</h2><span class="note">Vista sintética para demostración</span></div><span>250 Hz · 10 s</span></div>
         <div class="canvaswrap"><canvas id="ecgCanvas" aria-label="Representación sintética de una señal electrocardiográfica"></canvas></div>
       </section>
-      <aside class="result"><h2>Resultado del análisis</h2><dl>
+      <aside class="result"><h2>${icon("activity")} Resultado del análisis</h2><dl>
         <div><dt>Frecuencia cardíaca</dt><dd>${Number(record.heart_rate).toFixed(1)} <small>lpm</small></dd></div>
         <div><dt>Calidad estimada</dt><dd>${record.signal_quality}/100</dd></div>
         <div><dt>Complejos detectados</dt><dd>${record.complexes_detected ?? "—"}</dd></div>
         <div><dt>Versión del algoritmo</dt><dd><small>${escapeHtml(record.algorithm_version)}</small></dd></div>
       </dl></aside>
-      <section class="interpret"><h2>Interpretación operativa</h2><p>${escapeHtml(interpretation)}</p>
+      <section class="interpret"><h2>${icon("clipboard")} Interpretación operativa</h2><p>${escapeHtml(interpretation)}</p>
         <div class="scope"><strong>Alcance:</strong> esta salida prioriza la revisión del registro. No confirma una arritmia ni reemplaza la valoración clínica.</div>
         ${record.reviewed
           ? `<p class="reviewed">✓ Alerta revisada${record.reviewed_at ? ` el ${formatDate(record.reviewed_at)}` : ""}</p>`
@@ -358,9 +445,16 @@ els.logout.addEventListener("click", async () => {
 
 $$('[data-view]').forEach(button => button.addEventListener("click", () => showView(button.dataset.view)));
 $$('.newrecord').forEach(button => button.addEventListener("click", openModal));
+$$('.newpatient').forEach(button => button.addEventListener("click", openPatientModal));
 els.close.addEventListener("click", closeModal);
 els.modal.addEventListener("click", event => { if (event.target === els.modal) closeModal(); });
 els.newForm.addEventListener("submit", createRecord);
+els.closePatient.addEventListener("click", closePatientModal);
+els.patientModal.addEventListener("click", event => { if (event.target === els.patientModal) closePatientModal(); });
+els.patientForm.addEventListener("submit", createPatient);
+els.closeInstall.addEventListener("click", closeInstallGuide);
+els.acceptInstall.addEventListener("click", closeInstallGuide);
+els.installModal.addEventListener("click", event => { if (event.target === els.installModal) closeInstallGuide(); });
 els.search.addEventListener("input", renderRecords);
 els.records.addEventListener("click", event => {
   const button = event.target.closest("[data-record-id]");
@@ -379,15 +473,18 @@ window.addEventListener("beforeinstallprompt", event => {
   state.deferredInstallPrompt = event;
 });
 
-$$('.install').forEach(button => button.addEventListener("click", async () => {
+$$('.install-android').forEach(button => button.addEventListener("click", async () => {
+  if (isStandalone()) return notify("CardioTrack ya está instalado en este dispositivo.");
   if (state.deferredInstallPrompt) {
     state.deferredInstallPrompt.prompt();
     await state.deferredInstallPrompt.userChoice;
     state.deferredInstallPrompt = null;
   } else {
-    notify("En Chrome abre el menú ⋮ y selecciona ‘Instalar aplicación’ o ‘Agregar a pantalla principal’. ");
+    showInstallGuide("android");
   }
 }));
+
+$$('.install-ios').forEach(button => button.addEventListener("click", () => showInstallGuide("ios")));
 
 window.addEventListener("resize", () => {
   if (state.currentRecordId && $("#detail").classList.contains("active")) {
