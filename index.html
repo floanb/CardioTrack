@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#102f62">
+  <meta name="description" content="Prototipo académico de monitoreo cardiaco remoto con datos seudonimizados.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CardioTrack">
+  <title>CardioTrack</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <section id="loginView" class="loginwrap">
+    <form id="loginForm" class="login" autocomplete="on">
+      <div class="brand login-brand"><span class="mark" aria-hidden="true">♥</span>CardioTrack</div>
+      <div class="eyebrow">Acceso clínico</div>
+      <h1>Bienvenida</h1>
+      <p class="sub">Ingresa al prototipo académico conectado a la nube.</p>
+
+      <label class="field" for="email">Correo
+        <input id="email" type="email" value="clinico@cardiotrack.local" autocomplete="username" required>
+      </label>
+      <label class="field" for="password">Contraseña
+        <input id="password" type="password" autocomplete="current-password" required>
+      </label>
+      <p id="loginError" class="form-error hidden" role="alert"></p>
+      <button class="btn login-button" id="loginBtn" type="submit">Iniciar sesión</button>
+
+      <div class="demo-note">
+        <strong>Acceso de demostración</strong>
+        <span>Utiliza las credenciales entregadas por el equipo.</span>
+      </div>
+    </form>
+  </section>
+
+  <div id="app" class="hidden">
+    <header class="top">
+      <div class="shell topin">
+        <div class="brand"><span class="mark" aria-hidden="true">♥</span>CardioTrack</div>
+        <nav class="nav" aria-label="Navegación principal">
+          <button type="button" data-view="dashboard" class="active">Tablero</button>
+          <button type="button" data-view="patients">Pacientes</button>
+        </nav>
+        <div class="user">
+          <span id="userName">Usuario clínico</span>
+          <button type="button" class="logout" id="logout">Salir</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="dashboard" class="view active">
+        <div class="shell main">
+          <div class="statusline"><span class="pulse"></span>Datos sincronizados</div>
+          <div class="hero">
+            <div>
+              <div class="eyebrow">Resumen de monitoreo</div>
+              <h1>Tablero clínico</h1>
+              <p class="sub">Registros ordenados por prioridad de revisión.</p>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn light install">Instalar en celular</button>
+              <button type="button" class="btn newrecord">Nuevo registro</button>
+            </div>
+          </div>
+
+          <div id="loadingDashboard" class="loading-card">Consultando registros en Supabase…</div>
+          <div id="dashboardContent" class="hidden">
+            <div id="alertOverview" class="alert-overview"></div>
+            <div id="stats" class="stats"></div>
+            <div class="panel records-panel">
+              <div class="panelhead">
+                <div>
+                  <h2>Registros recientes</h2>
+                  <span class="note">Datos sintéticos para demostración</span>
+                </div>
+                <button type="button" id="refresh" class="icon-button" aria-label="Actualizar datos" title="Actualizar datos">↻</button>
+              </div>
+              <label class="sr-only" for="search">Buscar paciente o estado</label>
+              <input class="search" id="search" placeholder="Buscar paciente o estado">
+              <div class="table-scroll">
+                <table>
+                  <thead><tr><th>Paciente</th><th>Fecha</th><th>Frecuencia</th><th>Calidad</th><th>Estado</th><th></th></tr></thead>
+                  <tbody id="records"></tbody>
+                </table>
+              </div>
+              <p id="emptyRecords" class="empty hidden">No hay registros que coincidan con la búsqueda.</p>
+            </div>
+          </div>
+          <div class="footer">Prototipo académico. CardioTrack apoya la revisión y no emite diagnósticos.</div>
+        </div>
+      </section>
+
+      <section id="patients" class="view">
+        <div class="shell main">
+          <div class="eyebrow">Datos seudonimizados</div>
+          <h1>Pacientes</h1>
+          <p class="sub">Se utilizan códigos; el prototipo no almacena nombres.</p>
+          <div id="patientCards" class="patients"></div>
+          <div class="footer">La información mostrada es sintética y se utiliza únicamente con fines académicos.</div>
+        </div>
+      </section>
+
+      <section id="detail" class="view">
+        <div class="shell main">
+          <button type="button" class="back" id="back">Volver al tablero</button>
+          <div id="recordContent"></div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottomnav" aria-label="Navegación móvil">
+      <button type="button" data-view="dashboard" class="active"><span aria-hidden="true">⌂</span><small>Tablero</small></button>
+      <button type="button" data-view="patients"><span aria-hidden="true">♙</span><small>Pacientes</small></button>
+      <button type="button" class="newrecord"><span aria-hidden="true">＋</span><small>Nuevo</small></button>
+    </nav>
+  </div>
+
+  <div id="modal" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <form class="modal" id="newForm">
+      <div class="modaltop">
+        <div><div class="eyebrow">Escenario controlado</div><h2 id="modalTitle">Nuevo registro de prueba</h2></div>
+        <button type="button" class="close" id="close" aria-label="Cerrar">×</button>
+      </div>
+      <label class="field" for="newPatient">Paciente
+        <select id="newPatient" required></select>
+      </label>
+      <label class="field" for="newHr">Frecuencia configurada
+        <input id="newHr" type="number" min="35" max="190" value="118" required>
+      </label>
+      <label class="field" for="newNoise">Nivel de ruido
+        <select id="newNoise">
+          <option value="low">Bajo</option>
+          <option value="medium">Medio</option>
+          <option value="high">Alto</option>
+        </select>
+      </label>
+      <div class="info">El sistema generará una señal sintética, la procesará y guardará el resultado en Supabase.</div>
+      <p id="newError" class="form-error hidden" role="alert"></p>
+      <button class="btn form-submit" id="processBtn" type="submit">Procesar y guardar</button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="./supabase-config.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>

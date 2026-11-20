@@ -1,0 +1,15 @@
+{
+  "name": "CardioTrack - Monitoreo cardiaco remoto",
+  "short_name": "CardioTrack",
+  "description": "Prototipo académico para priorizar la revisión de registros ECG.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f5fa",
+  "theme_color": "#102f62",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
