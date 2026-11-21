@@ -65,6 +65,16 @@
         </nav>
         <div class="user">
           <span id="userName">Usuario clínico</span>
+          <div class="menu-wrap" id="installControl">
+            <button type="button" class="menu-button" id="installMenuButton" aria-expanded="false" aria-controls="installMenu">
+              <svg class="icon"><use href="#i-phone"/></svg><span class="install-label">Instalar</span><span aria-hidden="true">⌄</span>
+            </button>
+            <div class="app-menu hidden" id="installMenu">
+              <div class="app-menu-title">Instalar CardioTrack</div>
+              <button type="button" class="install-android"><svg class="icon"><use href="#i-android"/></svg><span><strong>Android</strong><small>Instalar desde Chrome</small></span></button>
+              <button type="button" class="install-ios"><svg class="icon"><use href="#i-apple"/></svg><span><strong>iPhone o iPad</strong><small>Agregar desde Safari</small></span></button>
+            </div>
+          </div>
           <button type="button" class="logout" id="logout">Salir <svg class="icon"><use href="#i-logout"/></svg></button>
         </div>
       </div>
@@ -81,11 +91,6 @@
               <p class="sub">Registros ordenados por prioridad de revisión.</p>
             </div>
             <div class="actions">
-              <div class="install-actions" aria-label="Opciones de instalación">
-                <button type="button" class="btn light install-android"><svg class="icon"><use href="#i-android"/></svg> Android</button>
-                <button type="button" class="btn light install-ios"><svg class="icon"><use href="#i-apple"/></svg> iOS</button>
-              </div>
-              <button type="button" class="btn newpatient"><svg class="icon"><use href="#i-user-plus"/></svg> Registrar paciente</button>
               <button type="button" class="btn newrecord"><svg class="icon"><use href="#i-plus"/></svg> Nuevo registro</button>
             </div>
           </div>

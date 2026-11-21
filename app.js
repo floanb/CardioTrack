@@ -32,7 +32,8 @@ const els = {
   patientCode: $("#patientCode"), patientAge: $("#patientAge"), patientSex: $("#patientSex"),
   patientError: $("#patientError"), patientSubmit: $("#patientSubmit"),
   installModal: $("#installModal"), installTitle: $("#installTitle"), installContent: $("#installContent"),
-  closeInstall: $("#closeInstall"), acceptInstall: $("#acceptInstall")
+  closeInstall: $("#closeInstall"), acceptInstall: $("#acceptInstall"),
+  installControl: $("#installControl"), installMenuButton: $("#installMenuButton"), installMenu: $("#installMenu")
 };
 
 const icon = name => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
@@ -262,6 +263,20 @@ function isStandalone() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
+function updateInstallVisibility() {
+  const installed = isStandalone() || localStorage.getItem("cardiotrack-installed") === "true";
+  els.installControl.classList.toggle("hidden", installed);
+  if (installed) {
+    els.installMenu.classList.add("hidden");
+    els.installMenuButton.setAttribute("aria-expanded", "false");
+  }
+}
+
+function closeInstallMenu() {
+  els.installMenu.classList.add("hidden");
+  els.installMenuButton.setAttribute("aria-expanded", "false");
+}
+
 function showInstallGuide(platform) {
   if (isStandalone()) return notify("CardioTrack ya está instalado en este dispositivo.");
   const ios = platform === "ios";
@@ -455,6 +470,15 @@ els.patientForm.addEventListener("submit", createPatient);
 els.closeInstall.addEventListener("click", closeInstallGuide);
 els.acceptInstall.addEventListener("click", closeInstallGuide);
 els.installModal.addEventListener("click", event => { if (event.target === els.installModal) closeInstallGuide(); });
+els.installMenuButton.addEventListener("click", event => {
+  event.stopPropagation();
+  const opening = els.installMenu.classList.contains("hidden");
+  els.installMenu.classList.toggle("hidden", !opening);
+  els.installMenuButton.setAttribute("aria-expanded", String(opening));
+});
+document.addEventListener("click", event => {
+  if (!els.installControl.contains(event.target)) closeInstallMenu();
+});
 els.search.addEventListener("input", renderRecords);
 els.records.addEventListener("click", event => {
   const button = event.target.closest("[data-record-id]");
@@ -470,10 +494,13 @@ els.refresh.addEventListener("click", async () => {
 
 window.addEventListener("beforeinstallprompt", event => {
   event.preventDefault();
+  localStorage.removeItem("cardiotrack-installed");
   state.deferredInstallPrompt = event;
+  updateInstallVisibility();
 });
 
 $$('.install-android').forEach(button => button.addEventListener("click", async () => {
+  closeInstallMenu();
   if (isStandalone()) return notify("CardioTrack ya está instalado en este dispositivo.");
   if (state.deferredInstallPrompt) {
     state.deferredInstallPrompt.prompt();
@@ -484,7 +511,18 @@ $$('.install-android').forEach(button => button.addEventListener("click", async 
   }
 }));
 
-$$('.install-ios').forEach(button => button.addEventListener("click", () => showInstallGuide("ios")));
+$$('.install-ios').forEach(button => button.addEventListener("click", () => {
+  closeInstallMenu();
+  showInstallGuide("ios");
+}));
+
+window.addEventListener("appinstalled", () => {
+  localStorage.setItem("cardiotrack-installed", "true");
+  updateInstallVisibility();
+  notify("CardioTrack se instaló correctamente en este dispositivo.");
+});
+
+window.matchMedia("(display-mode: standalone)").addEventListener?.("change", updateInstallVisibility);
 
 window.addEventListener("resize", () => {
   if (state.currentRecordId && $("#detail").classList.contains("active")) {
@@ -499,6 +537,7 @@ async function boot() {
     return;
   }
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+  updateInstallVisibility();
   const { data, error } = await client.auth.getSession();
   if (error) setError(els.loginError, errorMessage(error));
   if (data?.session) {
