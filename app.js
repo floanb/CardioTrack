@@ -280,12 +280,19 @@ function closeInstallMenu() {
 function showInstallGuide(platform) {
   if (isStandalone()) return notify("CardioTrack ya está instalado en este dispositivo.");
   const ios = platform === "ios";
-  els.installTitle.innerHTML = `${icon(ios ? "apple" : "android")} Instalar en ${ios ? "iPhone o iPad" : "Android"}`;
+  const desktop = platform === "desktop";
+  els.installTitle.innerHTML = `${icon(ios ? "apple" : desktop ? "monitor" : "android")} Instalar en ${ios ? "iPhone o iPad" : desktop ? "computadora" : "Android"}`;
   els.installContent.innerHTML = ios
     ? `<div class="install-guide">
         <div class="install-step"><span class="step-number">1</span><span>Abre CardioTrack en <strong>Safari</strong>.</span></div>
         <div class="install-step"><span class="step-number">2</span><span>Pulsa el botón <strong>Compartir</strong> de Safari.</span></div>
         <div class="install-step"><span class="step-number">3</span><span>Selecciona <strong>Agregar a pantalla de inicio</strong> y después <strong>Agregar</strong>.</span></div>
+      </div>`
+    : desktop
+      ? `<div class="install-guide">
+        <div class="install-step"><span class="step-number">1</span><span>Abre CardioTrack en <strong>Chrome</strong> o <strong>Edge</strong>.</span></div>
+        <div class="install-step"><span class="step-number">2</span><span>Pulsa el icono de instalación situado a la derecha de la barra de direcciones.</span></div>
+        <div class="install-step"><span class="step-number">3</span><span>Selecciona <strong>Instalar</strong> para abrir CardioTrack como aplicación.</span></div>
       </div>`
     : `<div class="install-guide">
         <div class="install-step"><span class="step-number">1</span><span>Abre CardioTrack en <strong>Chrome</strong>.</span></div>
@@ -294,6 +301,18 @@ function showInstallGuide(platform) {
       </div>`;
   els.installModal.classList.remove("hidden");
   document.body.style.overflow = "hidden";
+}
+
+async function requestInstall(platform) {
+  closeInstallMenu();
+  if (isStandalone()) return notify("CardioTrack ya está instalado en este dispositivo.");
+  if (state.deferredInstallPrompt) {
+    state.deferredInstallPrompt.prompt();
+    await state.deferredInstallPrompt.userChoice;
+    state.deferredInstallPrompt = null;
+    return;
+  }
+  showInstallGuide(platform);
 }
 
 function closeInstallGuide() {
@@ -499,17 +518,8 @@ window.addEventListener("beforeinstallprompt", event => {
   updateInstallVisibility();
 });
 
-$$('.install-android').forEach(button => button.addEventListener("click", async () => {
-  closeInstallMenu();
-  if (isStandalone()) return notify("CardioTrack ya está instalado en este dispositivo.");
-  if (state.deferredInstallPrompt) {
-    state.deferredInstallPrompt.prompt();
-    await state.deferredInstallPrompt.userChoice;
-    state.deferredInstallPrompt = null;
-  } else {
-    showInstallGuide("android");
-  }
-}));
+$$('.install-desktop').forEach(button => button.addEventListener("click", () => requestInstall("desktop")));
+$$('.install-android').forEach(button => button.addEventListener("click", () => requestInstall("android")));
 
 $$('.install-ios').forEach(button => button.addEventListener("click", () => {
   closeInstallMenu();

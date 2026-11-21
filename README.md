@@ -14,7 +14,8 @@ Prototipo académico instalable (PWA) para monitoreo cardiaco remoto. La interfa
 - Persistencia compartida de registros en PostgreSQL/Supabase.
 - Visualización de señal, frecuencia, calidad y complejos detectados.
 - Registro de revisión de alertas y bitácora de auditoría.
-- Diseño responsivo e instalación guiada desde un menú para Android y iOS; el control se oculta al ejecutar la PWA instalada.
+- Diseño responsivo e instalación guiada desde un menú para computadora, Android y iOS; el control se oculta al ejecutar la PWA instalada.
+- Recursos versionados y actualización prioritaria de JavaScript y CSS para evitar mezclar versiones por caché.
 
 ## Arquitectura
 
